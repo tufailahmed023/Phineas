@@ -7,3 +7,4 @@ cassio
 datasets
 tiktoken
 langchain_community
+langchain-openai

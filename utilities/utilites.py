@@ -3,18 +3,19 @@ import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores.cassandra import Cassandra
-from langchain.indexes.vectorstore import VectorStoreIndexWrapper
+from langchain_community.embeddings import OpenAIEmbeddings
+from langchain_community.vectorstores import Cassandra
 from langchain_community.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
 
 
-
-
 import os
 from PyPDF2 import PdfReader
+
+load_dotenv()
+
+open_ai_api_key = os.getenv("OPENAI_API_KEY")
 
 def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extracted_texts"):
     # Ensure the output folder exists
@@ -77,20 +78,24 @@ def get_text_chunks(text):
     chunks = text_splitter.split_text(text)
     return chunks
 
+def get_embeddings():
+    embeddings = OpenAIEmbeddings(api_key=open_ai_api_key)
+    return embeddings
 
-def get_vectorstore(text_chunks):
-    embeddings = OpenAIEmbeddings()
+def get_llm(): 
+    llm = ChatOpenAI(model="gpt-3.5-turbo-1106",api_key=open_ai_api_key)
+    return llm 
+
+def get_vectorstore(text_chunks,embeddings,table_name):
     vectorstore = Cassandra(
     embedding=embeddings,
-    table_name="qa_mini_demo", ## Change Table name 
+    table_name= table_name 
     session=None,
     keyspace=None,)
     return vectorstore
 
-def get_conversation_chain(vectorstore):
-    llm = ChatOpenAI()
-    # llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature":0.5, "max_length":512})
-
+def get_conversation_chain(vectorstore,llm):
+    
     memory = ConversationBufferMemory(
         memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
