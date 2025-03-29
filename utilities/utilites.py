@@ -1,13 +1,14 @@
 
-import streamlit as st
 from dotenv import load_dotenv
 from PyPDF2 import PdfReader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain_community.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import Cassandra
+from langchain.vectorstores import FAISS
 from langchain_community.chat_models import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain.chains import ConversationalRetrievalChain
+from cassandra.cluster import Cluster
 
 
 import os
@@ -23,8 +24,10 @@ def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extract
 
     # Read the log file to track already processed PDFs
     processed_pdfs = set()
-    if os.path.exists(log_file):
-        with open(log_file, "r") as f:
+    log_file_path = os.path.join(output_folder, log_file)  # Fix path issue
+
+    if os.path.exists(log_file_path):
+        with open(log_file_path, "r") as f:
             processed_pdfs.update(f.read().splitlines())
 
     # Get list of PDF files to process
@@ -35,7 +38,9 @@ def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extract
         pdf_files = [pdf_path]
     else:
         print(f"Invalid path: {pdf_path}")
-        return
+        return None  # Return None for invalid input
+
+    extracted_texts = {}  # Store extracted texts
 
     for pdf_file in pdf_files:
         pdf_name = os.path.basename(pdf_file)
@@ -51,10 +56,6 @@ def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extract
             pdf_reader = PdfReader(pdf_file)
             for page in pdf_reader.pages:
                 text += page.extract_text() or ""  # Handle NoneType cases
-
-            # Log the processed file
-            with open(log_file, "a") as f:
-                f.write(pdf_name + "\n")
 
         except Exception as e:
             print(f"Error processing {pdf_name}: {e}")
@@ -79,41 +80,33 @@ def get_text_chunks(text):
     return chunks
 
 def get_embeddings():
-    embeddings = OpenAIEmbeddings(api_key=open_ai_api_key)
+    embeddings = OpenAIEmbeddings(model='text-embedding-3-small',api_key=open_ai_api_key)
     return embeddings
 
 def get_llm(): 
     llm = ChatOpenAI(model="gpt-3.5-turbo-1106",api_key=open_ai_api_key)
     return llm 
 
-def get_vectorstore(text_chunks,embeddings,table_name):
-    vectorstore = Cassandra(
-    embedding=embeddings,
-    table_name= table_name 
-    session=None,
-    keyspace=None,)
+# def get_vectorstore(embeddings,table_name,keyspace):
+#     vectorstore = Cassandra(
+#     embedding=embeddings,
+#     table_name= table_name,
+#     keyspace=keyspace
+#     )
+#     return vectorstore
+
+def get_vectorstore(text_chunks,embeddings):
+    vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 
-def get_conversation_chain(vectorstore,llm):
+def get_conversation_chain(vector_index,llm):
     
     memory = ConversationBufferMemory(
         memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
-        retriever=vectorstore.as_retriever(),
+        retriever=vector_index.as_retriever(),
         memory=memory
     )
     return conversation_chain
 
-
-def handle_userinput(user_question):
-    response = st.session_state.conversation({'question': user_question})
-    st.session_state.chat_history = response['chat_history']
-
-    for i, message in enumerate(st.session_state.chat_history):
-        if i % 2 == 0:
-            st.write(user_template.replace(
-                "{{MSG}}", message.content), unsafe_allow_html=True)
-        else:
-            st.write(bot_template.replace(
-                "{{MSG}}", message.content), unsafe_allow_html=True)

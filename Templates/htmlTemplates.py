@@ -44,7 +44,7 @@ bot_template = '''
 <!-- Bot Message -->
 <div class="chat-message bot">
     <div class="avatar">
-        <img src="https://i.ibb.co/0XrjqSX/ai-avatar.png" alt="Bot Avatar">
+        <img src="Image/phines.jpg" alt="Bot Avatar">
     </div>
     <div class="message">{{MSG}}</div>
 </div>
@@ -55,7 +55,7 @@ user_template = '''
 <!-- User Message -->
 <div class="chat-message user">
     <div class="avatar">
-        <img src="https://i.ibb.co/JFGHRyS/user-avatar.png" alt="User Avatar">
+        <img src="/Users/tufailahmed/Desktop/Phineas/Image/user.jpg" alt="User Avatar">
     </div>    
     <div class="message">{{MSG}}</div>
 </div>
