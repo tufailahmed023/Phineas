@@ -2,6 +2,10 @@
  Develop a company-wide chatbot capable of aligning and answering IT and HR policy-related queries.
 
 ## How to run locally 
+- Clone the repo (click the green code buttom)
+```bash 
+git clone repo_https 
+```
 -   Create a new env by 
 ```bash 
 conda create -n env_name python=3.10
