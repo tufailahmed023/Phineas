@@ -19,12 +19,12 @@ load_dotenv()
 open_ai_api_key = os.getenv("OPENAI_API_KEY")
 
 def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extracted_texts"):
-    # Ensure the output folder exists
-    os.makedirs(output_folder, exist_ok=True)
+
+    output_folder_path = output_folder = os.path.join(os.path.expanduser("~/Desktop/Phineas"), output_folder)
 
     # Read the log file to track already processed PDFs
     processed_pdfs = set()
-    log_file_path = os.path.join(output_folder, log_file)  # Fix path issue
+    log_file_path = os.path.join(output_folder_path, log_file)  # Fix path issue
 
     if os.path.exists(log_file_path):
         with open(log_file_path, "r") as f:
@@ -40,7 +40,7 @@ def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extract
         print(f"Invalid path: {pdf_path}")
         return None  # Return None for invalid input
 
-    extracted_texts = {}  # Store extracted texts
+    
 
     for pdf_file in pdf_files:
         pdf_name = os.path.basename(pdf_file)
@@ -56,6 +56,9 @@ def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extract
             pdf_reader = PdfReader(pdf_file)
             for page in pdf_reader.pages:
                 text += page.extract_text() or ""  # Handle NoneType cases
+        
+            with open(log_file_path, "a") as f:
+                f.write(pdf_name + "\n")
 
         except Exception as e:
             print(f"Error processing {pdf_name}: {e}")
