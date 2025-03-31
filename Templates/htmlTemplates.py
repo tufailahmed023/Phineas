@@ -44,10 +44,11 @@ bot_template = '''
 <!-- Bot Message -->
 <div class="chat-message bot">
     <div class="avatar">
-        <img src="Image/phines.jpg" alt="Bot Avatar">
+        <img src="https://upload.wikimedia.org/wikipedia/en/6/60/Phineas_Flynn.png" alt="Phineas Avatar">
     </div>
     <div class="message">{{MSG}}</div>
 </div>
+
 '''
 
 user_template = '''
@@ -55,7 +56,7 @@ user_template = '''
 <!-- User Message -->
 <div class="chat-message user">
     <div class="avatar">
-        <img src="/Users/tufailahmed/Desktop/Phineas/Image/user.jpg" alt="User Avatar">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3b/Tom_Cruise_by_Gage_Skidmore_2.jpg" alt="User Avatar">
     </div>    
     <div class="message">{{MSG}}</div>
 </div>

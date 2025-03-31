@@ -73,6 +73,8 @@ def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extract
 
 
 def get_text_chunks(text):
+    if text == "" :
+        return None
     text_splitter = CharacterTextSplitter(
         separator="\n",
         chunk_size=1000,
@@ -99,6 +101,8 @@ def get_llm():
 #     return vectorstore
 
 def get_vectorstore(text_chunks,embeddings):
+    if text_chunks == None : 
+        return None
     vectorstore = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vectorstore
 

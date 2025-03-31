@@ -10,7 +10,7 @@ conda create -n env_name python=3.10
 ```bash 
 pip install -r requirements.txt
 ```
--   Create a ```.env`` file 
+-   Create a ```.env``` file 
 Instert your OpenAi API key in like ```OPENAI_API_KEY = ""```
 
 - Run Streamlit 
