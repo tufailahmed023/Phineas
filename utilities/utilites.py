@@ -20,7 +20,9 @@ open_ai_api_key = os.getenv("OPENAI_API_KEY")
 
 def get_pdf_text(pdf_path, log_file="processed_pdfs.txt", output_folder="extracted_texts"):
 
-    output_folder_path = output_folder = os.path.join(os.path.expanduser("~/Desktop/Phineas"), output_folder)
+    output_folder_path = os.path.join(os.path.abspath(os.curdir),output_folder)
+    if os.path.exists(output_folder_path) == False :
+        os.makedirs(output_folder_path)
 
     # Read the log file to track already processed PDFs
     processed_pdfs = set()
